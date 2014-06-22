@@ -1,12 +1,22 @@
 <?PHP
-  # define script parameters
-	$sql_c=mysql_query('select rss from zy_accounts_config ACC left join zy_rss RSS  on RSS.id=ACC.origenRss where user=1 and `type`=4 limit 1');
-	$row=mysql_fetch_row($sql_c) ;
-  $BLOGURL    = $row[0];
+
+include("conexion.php");
+
+setlocale(LC_ALL,"es_ES");
   $NUMITEMS   = 5;
-  $TIMEFORMAT = "j F Y, g:ia";
+  $TIMEFORMAT = "j F Y, g:ia";  
+  $CACHETIME  = 1; # hours  
+  
+$sql_c=mysql_query('select * from zy_accounts_config ACC left join zy_rss RSS  on RSS.id=ACC.origenRss where user=1 and `type`=4 ');
+$posicion=0;
+while($row=mysql_fetch_array($sql_c))
+{
+	$posicion++;
+  # define script parameters
+  $BLOGURL    = $row['rss'];
+
   $CACHEFILE  = "/tmp/" . md5($BLOGURL);
-  $CACHETIME  = 4; # hours
+
 
   # download the feed iff a cached version is missing or too old
   if(!file_exists($CACHEFILE) || ((time() - filemtime($CACHEFILE)) > 3600 * $CACHETIME)) {
@@ -18,7 +28,7 @@
     }
   }
 
-  include "rss.php";
+
   $rss_parser = new myRSSParser($CACHEFILE);
 
   $feeddata = $rss_parser->getRawOutput();
@@ -26,26 +36,35 @@
   $count = 0;
   $informacion='';
   foreach($rss_ITEM as $itemdata) {
-	  $datos='<div class="span6" style="margin-left:0px;height: 210px;padding:5px;">
-							<dl class="dl-icon">
-								<dt><a href=\''.$itemdata["LINK"].'\' target=\'_blank\'><b>';
-    $datos.= strip_tags($itemdata['TITLE']);
-    $datos.= "</b></a>-".date($TIMEFORMAT, strtotime($itemdata['PUBDATE']))."</dt>";
-	$datos.= '<dd>
-									<span class="icon-wrapper">
-										<i class="micon-newspaper"></i>
-									</span>
-									<p>'.strip_tags($itemdata['DESCRIPTION']).'</p>
-									<a class="btn btn-flat btn-warning btn-mini" href="publicar.php?url_link='.$itemdata["LINK"].'">Compartir</a>
-								</dd>
-							</dl>
-						</div>';
-
-	echo $datos;
-    if(++$count >= $NUMITEMS) break;
+	$datoF=date('Ymdhis',strtotime($itemdata['PUBDATE']));
+	  
+    $titulos[$datoF]= "<a title=\"".htmlspecialchars($rss_DESCRIPTION)."\" href=\"{$rss_LINK}\" target=\"_blank\">".htmlspecialchars($rss_TITLE)."</a> ".date($TIMEFORMAT, strtotime($itemdata['PUBDATE']));
+    $datos= "<p><b><a href=\"{$itemdata['LINK']}\" target=\"_blank\">".htmlspecialchars(stripslashes($itemdata['TITLE']));
+    $datos.= "</a></b><br>\n";
+    $datos.= htmlspecialchars(stripslashes(strip_tags($itemdata['DESCRIPTION'])))."<br><br>\n";
+	$datos.= '<a class="btn btn-medium btn-primary" href="publicar.php?url_link='.$itemdata["LINK"].'"><span><i class="icon-large icon-github"></i></span> Compartilo</a>';
+	
+	$datos.= "</p>\n\n";	  	
+	
+	 	  
+	$datoF=date('Ymdhis',strtotime($itemdata['PUBDATE']));
+	$informacion[$datoF]=$datos;
+	if(++$count >= $NUMITEMS) break;
   }
+foreach ($informacion as $key => $val) {
+
+	echo '<div class="span4">
+						<div class="well widget box-shadow-right" style="height:250px">
+							<div class="widget-header">
+								<h3 class="title">'.$titulos[$key].'</h3>
+							</div>
+							'.$informacion[$key].'
+						</div>
+					</div>';
+
+}  
+}
 
 
-
-
-?>
+echo '</tbody></table>';
+?>  
