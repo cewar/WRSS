@@ -1,6 +1,7 @@
 <?PHP
 
 include("conexion.php");
+include("rss.php");  
 
 setlocale(LC_ALL,"es_ES");
   $NUMITEMS   = 5;
@@ -15,7 +16,7 @@ while($row=mysql_fetch_array($sql_c))
   # define script parameters
   $BLOGURL    = $row['rss'];
 
-  $CACHEFILE  = "/tmp/" . md5($BLOGURL);
+  $CACHEFILE  = "tmp/" . md5($BLOGURL);
 
 
   # download the feed iff a cached version is missing or too old
@@ -62,7 +63,8 @@ foreach ($informacion as $key => $val) {
 						</div>
 					</div>';
 
-	}  
+}  
 }
+
 
 ?>  
