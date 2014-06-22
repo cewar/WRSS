@@ -16,7 +16,11 @@ CREATE TABLE IF NOT EXISTS `zy_accounts_config` (
 --
 
 INSERT INTO `zy_accounts_config` (`id`, `user`, `word`, `type`, `origenRss`) VALUES
-(107, 1, '1368282029', 2, 0)
+(109, 1, '', 4, 2),
+(110, 1, '', 4, 3),
+(111, 1, '', 4, 4);
+
+
 -- --------------------------------------------------------
 
 --
