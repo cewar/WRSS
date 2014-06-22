@@ -18,7 +18,7 @@
     }
   }
 
-  include "library/rss.php";
+  include "rss.php";
   $rss_parser = new myRSSParser($CACHEFILE);
 
   $feeddata = $rss_parser->getRawOutput();
