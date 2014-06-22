@@ -62,9 +62,7 @@ foreach ($informacion as $key => $val) {
 						</div>
 					</div>';
 
-}  
+	}  
 }
 
-
-echo '</tbody></table>';
 ?>  
